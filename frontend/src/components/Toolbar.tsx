@@ -1,11 +1,10 @@
-﻿import { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useTopologyStore } from '../store/useTopologyStore'
-import { saveTopology, exportJSON, importJSON } from '../api/client'
+import { saveTopology, importJSON } from '../api/client'
 import AddDeviceDialog from './AddDeviceDialog'
 
 export default function Toolbar() {
   const [isAddDeviceDialogOpen, setIsAddDeviceDialogOpen] = useState(false)
-  const [showExportMenu, setShowExportMenu] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
   const importFileInputRef = useRef<HTMLInputElement>(null)
 
@@ -34,64 +33,12 @@ export default function Toolbar() {
       showMessage('Topology saved successfully')
     } catch (error: any) {
       console.error('Failed to save topology:', error)
-      // Show the actual server error detail if available
       const detail =
         error?.response?.data?.detail ||
         error?.response?.data?.message ||
         error?.message ||
         'Unknown error'
       showMessage(`Save failed: ${detail}`, 'error')
-    }
-  }
-
-  const handleExportJSON = async () => {
-    try {
-      const response = await exportJSON()
-      const blob = new Blob([JSON.stringify(response.data, null, 2)], {
-        type: 'application/json',
-      })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `topology-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      showMessage('Topology exported as JSON')
-      setShowExportMenu(false)
-    } catch (error) {
-      console.error('Failed to export JSON:', error)
-      showMessage('Failed to export JSON', 'error')
-    }
-  }
-
-  const handleExportCSV = async () => {
-    try {
-      const devicesResponse = await exportJSON()
-      const data = devicesResponse.data
-
-      let csvContent = 'Device Name,Device Type,Position X,Position Y,IP Address,MAC Address\n'
-      if (data.devices && Array.isArray(data.devices)) {
-        data.devices.forEach((device: any) => {
-          csvContent += `"${device.name}","${device.device_type}",${device.position.x},${device.position.y},"${device.ip_address || ''}","${device.mac_address || ''}"\n`
-        })
-      }
-
-      const blob = new Blob([csvContent], { type: 'text/csv' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `topology-devices-${new Date().toISOString().split('T')[0]}.csv`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      showMessage('Topology exported as CSV')
-      setShowExportMenu(false)
-    } catch (error) {
-      console.error('Failed to export CSV:', error)
-      showMessage('Failed to export CSV', 'error')
     }
   }
 
@@ -213,7 +160,7 @@ export default function Toolbar() {
           </button>
         </div>
 
-        {/* View & Canvas Controls â€” now wired to ReactFlow via triggers */}
+        {/* View & Canvas Controls - wired to ReactFlow via triggers */}
         <div className="flex items-center gap-1 pl-2 border-l border-surface-container-high">
           <button
             onClick={triggerZoomOut}
@@ -245,8 +192,8 @@ export default function Toolbar() {
         </div>
       </div>
 
-      {/* Right: Actions & More Menu */}
-      <div className="flex items-center gap-2 relative">
+      {/* Right: Actions */}
+      <div className="flex items-center gap-2">
         {/* Message Display */}
         {message && (
           <div
@@ -267,34 +214,6 @@ export default function Toolbar() {
           <span className="material-symbols-outlined text-[15px]">save</span>
           <span>Save</span>
         </button>
-
-        {/* Export Menu */}
-        <div className="relative">
-          <button
-            onClick={() => setShowExportMenu(!showExportMenu)}
-            className="h-7 px-3 bg-surface-container-low text-on-surface hover:bg-surface-container-high rounded font-body-sm text-[12px] font-medium flex items-center gap-1 shadow-xs transition-all"
-          >
-            <span className="material-symbols-outlined text-[15px]">file_download</span>
-            <span>Export</span>
-          </button>
-
-          {showExportMenu && (
-            <div className="absolute right-0 top-full mt-1 bg-surface-container-lowest border border-surface-container-high rounded shadow-lg z-50 min-w-[150px]">
-              <button
-                onClick={handleExportJSON}
-                className="w-full text-left px-3 py-2 hover:bg-surface-container-high text-body-sm text-on-surface transition-colors border-b border-surface-container-high"
-              >
-                Export as JSON
-              </button>
-              <button
-                onClick={handleExportCSV}
-                className="w-full text-left px-3 py-2 hover:bg-surface-container-high text-body-sm text-on-surface transition-colors"
-              >
-                Export as CSV
-              </button>
-            </div>
-          )}
-        </div>
 
         {/* Import Button */}
         <button
@@ -318,15 +237,6 @@ export default function Toolbar() {
         isOpen={isAddDeviceDialogOpen}
         onClose={() => setIsAddDeviceDialogOpen(false)}
       />
-
-      {/* Close export menu on click outside */}
-      {showExportMenu && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setShowExportMenu(false)}
-        />
-      )}
     </header>
   )
 }
-
