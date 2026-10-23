@@ -1,0 +1,51 @@
+﻿# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# Environment / secrets
+.env
+.env.*
+*.secret
+
+# Byte-compiled / cache
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Node / Frontend ───────────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.vite/
+.npm
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Backend runtime data ──────────────────────────────────────────────────────
+# Persist the data directory structure but not the saved topology
+# (topology.json is user-specific runtime state, not source code)
+backend/data/topology.json
+backend/data/*.tmp
+
+# ── Test / coverage ───────────────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
